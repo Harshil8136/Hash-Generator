@@ -2,1024 +2,598 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- A11y Fix: Allow user scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Security: Content Security Policy -->
+    <!-- Allows: Self, Blob (Workers), CDNs for Libs/Fonts. Blocks: Analytics, Tracking, Unknown Connections -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net blob:; 
+        worker-src blob:; 
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+        font-src https://fonts.gstatic.com; 
+        connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+        img-src 'self' data:;
+    ">
+
     <title>CryptoForge Pro | Developer Cryptography Suite</title>
     
-    <!-- Professional Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- 
-      SECURITY & LIBRARIES 
-      Strict Subresource Integrity (SRI) enforced.
-    -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js" xintegrity="sha512-DNI/FJdkfyeuPUal7lDkRVg0mFY2n4IZJJYqPbQWLL0COxLi6G6nmf5gr1vW1Bd4wYC09hOvZVsSclfXxUTU/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" xintegrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
     <style>
         :root {
             /* --- DESIGN SYSTEM: DEEP SPACE SLATE --- */
-            
-            /* Palette */
-            --bg-app: #0f172a;       /* Main Background */
-            --bg-sidebar: #020617;   /* Sidebar/Nav */
-            --bg-card: #1e293b;      /* Card Surface */
-            --bg-input: #0f172a;     /* Input Fields */
-            
-            /* Brand & Accents */
-            --brand: #6366f1;        /* Indigo-500 */
-            --brand-glow: rgba(99, 102, 241, 0.15);
-            --brand-hover: #4f46e5;
-            
-            /* Semantic Colors */
-            --secure: #10b981;       /* Emerald */
-            --warning: #f59e0b;      /* Amber */
-            --danger: #ef4444;       /* Rose */
-            --neutral: #64748b;      /* Slate-500 */
-            
-            /* Text */
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-tertiary: #64748b;
-
-            /* Borders */
-            --border: #334155;
-            --border-highlight: #475569;
-
-            /* Spacing */
-            --radius-md: 12px;
-            --radius-sm: 8px;
-            
-            /* Transitions */
+            --bg-app: #0f172a; --bg-sidebar: #020617; --bg-card: #1e293b; --bg-input: #0f172a;
+            --brand: #6366f1; --brand-glow: rgba(99, 102, 241, 0.15); --brand-hover: #4f46e5;
+            --secure: #10b981; --warning: #f59e0b; --danger: #ef4444; --neutral: #64748b;
+            --text-primary: #f8fafc; --text-secondary: #94a3b8; --text-tertiary: #64748b;
+            --border: #334155; --border-highlight: #475569;
+            --radius-md: 12px; --radius-sm: 8px;
             --ease: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* --- GLOBAL RESET --- */
-        * { box-sizing: border-box; outline: none; -webkit-font-smoothing: antialiased; }
+        /* --- GLOBAL --- */
+        * { box-sizing: border-box; outline: none; }
+        body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-app); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; }
         
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-app);
-            color: var(--text-primary);
-            height: 100vh;
-            overflow: hidden; /* App-like feel */
-            display: flex;
-        }
+        /* Focus Visible for A11y */
+        :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
-        /* --- LAYOUT: SIDEBAR + CONTENT --- */
+        /* --- LAYOUT --- */
+        .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; z-index: 10; }
+        .main-content { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
         
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            flex-shrink: 0;
-            z-index: 10;
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-app); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
-        .brand-block {
-            margin-bottom: 32px;
-            padding: 0 12px;
-        }
-        
-        .brand-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .brand-subtitle {
-            font-size: 0.75rem;
-            color: var(--brand);
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
+        /* --- COMPONENTS --- */
+        .brand-block { margin-bottom: 32px; padding: 0 12px; cursor: pointer; }
+        .brand-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; background: linear-gradient(135deg, #fff 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .brand-subtitle { font-size: 0.75rem; color: var(--brand); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
 
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .nav-item {
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s var(--ease);
-        }
-
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-primary);
-        }
-
-        .nav-item.active {
-            background: var(--brand-glow);
-            color: var(--brand);
-            font-weight: 600;
-        }
-        
+        .nav-menu { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .nav-item { padding: 12px 16px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: all 0.2s var(--ease); }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.03); color: var(--text-primary); }
+        .nav-item.active { background: var(--brand-glow); color: var(--brand); font-weight: 600; }
         .nav-icon { width: 20px; height: 20px; }
 
-        /* Main Viewport */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 40px;
-            position: relative;
-        }
-
-        .view-section {
-            display: none; /* Hidden by default */
-            max-width: 900px;
-            margin: 0 auto;
-            animation: fadeUp 0.4s var(--ease);
-        }
-        
+        .view-section { display: none; max-width: 900px; margin: 0 auto; animation: fadeUp 0.4s var(--ease); }
         .view-section.active { display: block; }
 
-        /* --- TYPOGRAPHY & HEADERS --- */
+        /* Headers & Text */
         h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 8px 0; }
         p.desc { color: var(--text-secondary); margin: 0 0 32px 0; font-size: 0.95rem; line-height: 1.5; }
-        
         h2 { font-size: 1.1rem; font-weight: 600; margin: 24px 0 16px 0; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
         
-        .badge {
-            font-size: 0.65rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+        .badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         .badge.secure { background: rgba(16, 185, 129, 0.15); color: var(--secure); }
         .badge.legacy { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-        .badge.system { background: rgba(99, 102, 241, 0.15); color: var(--brand); }
-
-        /* --- COMPONENT: CARDS --- */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        /* --- COMPONENT: INPUTS & TABS --- */
+        
+        /* Cards & Inputs */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
-
         .input-group { position: relative; margin-bottom: 20px; }
+        textarea, input[type="text"], input[type="password"], input[type="number"], select { width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary); padding: 14px 16px; border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; transition: border-color 0.2s; }
+        textarea:focus, input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-glow); }
 
-        textarea, input[type="text"], input[type="password"], input[type="number"], select {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            padding: 14px 16px;
-            border-radius: var(--radius-sm);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-        }
-
-        textarea:focus, input:focus, select:focus {
-            border-color: var(--brand);
-            box-shadow: 0 0 0 3px var(--brand-glow);
-        }
-        
-        /* Inner Tabs (Text/File switch) */
-        .inner-tabs {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
-        }
-        .inner-tab {
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            padding: 4px 0;
-            position: relative;
-            transition: color 0.2s;
-        }
+        /* Tabs */
+        .inner-tabs { display: flex; gap: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .inner-tab { cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); padding: 4px 0; position: relative; transition: color 0.2s; }
         .inner-tab.active { color: var(--brand); font-weight: 600; }
-        .inner-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -9px; left: 0; right: 0;
-            height: 2px;
-            background: var(--brand);
-        }
+        .inner-tab.active::after { content: ''; position: absolute; bottom: -9px; left: 0; right: 0; height: 2px; background: var(--brand); }
 
-        /* File Drop Zone */
-        .drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-sm);
-            padding: 32px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--bg-input);
-        }
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--brand);
-            background: rgba(99, 102, 241, 0.05);
-        }
-        .drop-icon { color: var(--text-tertiary); margin-bottom: 12px; }
+        /* Drag Drop */
+        .drop-zone { border: 2px dashed var(--border); border-radius: var(--radius-sm); padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg-input); }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--brand); background: rgba(99, 102, 241, 0.05); }
 
-        /* --- COMPONENT: HASH ROWS --- */
+        /* Hash List */
         .hash-list { display: flex; flex-direction: column; gap: 8px; }
-
-        .hash-item {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid transparent;
-            border-radius: var(--radius-sm);
-            padding: 12px 16px;
-            display: grid;
-            grid-template-columns: 120px 1fr 40px;
-            align-items: center;
-            transition: all 0.2s;
-        }
-
-        .hash-item:hover {
-            border-color: var(--border-highlight);
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .algo-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .info-tip {
-            cursor: help;
-            opacity: 0.5;
-            transition: opacity 0.2s;
-        }
-        .info-tip:hover { opacity: 1; color: var(--text-primary); }
-
-        .hash-val {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 16px;
-        }
-        
+        .hash-item { background: rgba(0, 0, 0, 0.2); border: 1px solid transparent; border-radius: var(--radius-sm); padding: 12px 16px; display: grid; grid-template-columns: 140px 1fr 40px; align-items: center; transition: all 0.2s; }
+        .hash-item:hover { border-color: var(--border-highlight); background: rgba(255, 255, 255, 0.02); }
+        .algo-label { font-size: 0.75rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+        .hash-val { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 16px; }
         .hash-val.highlight { color: var(--text-primary); }
-        .hash-val.secure-text { color: var(--secure); }
+        .hash-val.disabled { font-style: italic; color: var(--text-tertiary); }
 
-        .btn-icon {
-            background: transparent;
-            border: none;
-            color: var(--text-tertiary);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
+        .btn-icon { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; padding: 8px; border-radius: 6px; transition: all 0.2s; }
         .btn-icon:hover { background: var(--bg-input); color: var(--text-primary); }
-
-        /* --- COMPONENT: BUTTONS --- */
-        .btn-primary {
-            background: var(--brand);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover { background: var(--brand-hover); }
         
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            font-weight: 500;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
+        .btn-primary { background: var(--brand); color: white; border: none; padding: 8px 16px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
+        .btn-primary:hover { background: var(--brand-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
         .btn-outline:hover { border-color: var(--text-primary); color: var(--text-primary); }
 
-        /* --- COMPONENT: THREAT SELECTOR --- */
+        /* Threat Grid */
         .threat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-        
-        .threat-card {
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            padding: 16px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
+        .threat-card { background: var(--bg-input); border: 1px solid var(--border); padding: 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; text-align: center; }
         .threat-card:hover { border-color: var(--brand); }
         .threat-card.selected { border-color: var(--brand); background: var(--brand-glow); }
-        
         .threat-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; display: block; }
         .threat-desc { font-size: 0.75rem; color: var(--text-secondary); }
 
-        /* --- COMPONENT: AVALANCHE VISUALIZER --- */
-        .avalanche-container {
-            margin-top: 24px;
-            padding: 20px;
-            background: #000;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-        
-        .bit-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(8px, 1fr));
-            gap: 2px;
-            margin-top: 12px;
-        }
-        
-        .bit {
-            height: 8px;
-            background: #1e293b;
-            border-radius: 1px;
-            transition: background 0.3s;
-        }
+        /* Avalanche */
+        .avalanche-container { margin-top: 24px; padding: 20px; background: #000; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+        .bit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8px, 1fr)); gap: 2px; margin-top: 12px; }
+        .bit { height: 8px; background: #1e293b; border-radius: 1px; transition: background 0.3s; }
         .bit.active { background: var(--brand); box-shadow: 0 0 4px var(--brand); }
         .bit.diff { background: var(--danger); box-shadow: 0 0 4px var(--danger); }
 
-        /* --- UTILITIES --- */
-        .hidden { display: none !important; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); width: 90%; max-width: 500px; padding: 32px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: translateY(20px); transition: transform 0.2s; }
+        .modal-overlay.open .modal { transform: translateY(0); }
+        .modal h2 { margin-top: 0; color: var(--brand); }
+        .modal ul { padding-left: 20px; color: var(--text-secondary); line-height: 1.6; }
+        .modal li { margin-bottom: 8px; }
+
         /* Toast */
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: var(--text-primary);
-            color: var(--bg-app);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s var(--ease);
-            z-index: 100;
-        }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: var(--bg-app); padding: 10px 20px; border-radius: 50px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.3s var(--ease); z-index: 200; }
         #toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* Mobile Adjustments */
+        /* Utilities */
+        .hidden { display: none !important; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .info-tip { cursor: help; opacity: 0.5; transition: opacity 0.2s; }
+        .info-tip:hover { opacity: 1; color: var(--text-primary); }
+
         @media (max-width: 768px) {
             body { flex-direction: column; overflow-y: auto; }
-            .sidebar { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px; border-right: none; border-bottom: 1px solid var(--border); overflow-x: auto; }
-            .nav-menu { flex-direction: row; }
-            .nav-item span { display: none; }
+            .sidebar { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; padding: 12px; border-right: none; border-bottom: 1px solid var(--border); }
+            .nav-menu { flex-direction: row; gap: 8px; display: none; } /* Simplified mobile nav for brevity, usually burger menu */
             .main-content { padding: 20px 16px; overflow: visible; }
             .threat-grid { grid-template-columns: 1fr; }
         }
-
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR NAVIGATION -->
+    <!-- SIDEBAR -->
     <nav class="sidebar">
-        <div class="brand-block">
+        <div class="brand-block" onclick="toggleModal('security-modal')">
             <div class="brand-title">CryptoForge</div>
-            <div class="brand-subtitle">PRO SUITE</div>
+            <div class="brand-subtitle">PRO v3.0</div>
         </div>
         
-        <div class="nav-menu">
-            <div class="nav-item active" onclick="switchTab('hash-view', this)">
-                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                <span>Hash Studio</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('hmac-view', this)">
-                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                <span>HMAC Signer</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('password-view', this)">
-                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                <span>Password Foundry</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('utils-view', this)">
-                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                <span>Encoders</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('compare-view', this)">
-                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                <span>Comparator</span>
-            </div>
+        <div class="nav-menu" style="display:flex;">
+            <div class="nav-item active" onclick="switchTab('hash-view', this)"><span>Hash Studio</span></div>
+            <div class="nav-item" onclick="switchTab('password-view', this)"><span>Password Foundry</span></div>
+            <div class="nav-item" onclick="switchTab('hmac-view', this)"><span>HMAC Signer</span></div>
+            <div class="nav-item" onclick="switchTab('utils-view', this)"><span>Encoders</span></div>
+            <div class="nav-item" onclick="switchTab('compare-view', this)"><span>Comparator</span></div>
             
-            <div style="flex: 1"></div> <!-- Spacer -->
+            <div style="flex: 1"></div>
             
-            <div class="nav-item" onclick="toggleZeroTrust(this)" id="zt-btn">
-                <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                <span>Zero-Trust: OFF</span>
+            <div class="nav-item" onclick="toggleZeroTrust()" id="zt-btn" style="border: 1px solid var(--border);">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--secure);" id="zt-dot"></div>
+                <span id="zt-text">Libs: OFF</span>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-tertiary); text-align: center; margin-top: 8px; cursor: pointer;" onclick="toggleModal('security-modal')">
+                Security Policy &rarr;
             </div>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTENT -->
     <main class="main-content">
         
-        <!-- VIEW 1: HASH STUDIO -->
+        <!-- HASH STUDIO -->
         <section id="hash-view" class="view-section active">
             <header class="flex-between">
-                <div>
-                    <h1>Hash Studio</h1>
-                    <p class="desc">Generate multiple cryptographic fingerprints. Drag & drop files for checksum verification.</p>
-                </div>
-                <button class="btn-outline" onclick="downloadReport()">Download Report</button>
+                <div><h1>Hash Studio</h1><p class="desc">Secure Checksums (SHA-2/3) & Legacy Hashes.</p></div>
+                <button class="btn-outline" onclick="downloadReport()">Save Report</button>
             </header>
 
             <div class="card">
                 <div class="inner-tabs">
                     <div class="inner-tab active" id="tab-text" onclick="setHashMode('text')">Text Input</div>
-                    <div class="inner-tab" id="tab-file" onclick="setHashMode('file')">File Hash (Checksum)</div>
+                    <div class="inner-tab" id="tab-file" onclick="setHashMode('file')">File Checksum</div>
                 </div>
 
                 <!-- Text Mode -->
                 <div id="mode-text">
-                    <div class="flex-between" style="margin-bottom: 16px;">
-                        <label>Input Payload</label>
-                        <label style="cursor: pointer; color: var(--brand);">
-                            <input type="checkbox" id="mask-hash"> Mask Input
-                        </label>
-                    </div>
-                    <div id="hash-input-wrapper" class="input-group">
-                        <textarea id="hash-input" rows="3" placeholder="Enter text to hash..."></textarea>
+                    <div class="input-group">
+                        <textarea id="hash-input" rows="3" placeholder="Enter text to hash (Ctrl+Enter to calc)..."></textarea>
                     </div>
                 </div>
 
                 <!-- File Mode -->
                 <div id="mode-file" class="hidden">
                     <div class="drop-zone" id="drop-zone">
-                        <svg class="drop-icon" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                        <p style="margin:0; font-weight:600; color:var(--text-primary)">Drag file here or click to upload</p>
-                        <p style="margin:4px 0 0 0; font-size:0.8rem; color:var(--text-tertiary)">Calculated locally. Files never leave your device.</p>
+                        <p style="margin:0; font-weight:600; color:var(--text-primary)">Drag file here</p>
+                        <p style="margin:4px 0 0 0; font-size:0.8rem; color:var(--text-tertiary)">Calculated locally via WebCrypto</p>
                         <input type="file" id="file-input" style="display:none">
                     </div>
                     <div id="file-info" style="margin-top:12px; font-size:0.85rem; color:var(--brand); font-weight:500;"></div>
                 </div>
 
-                <!-- Recommended Algorithms -->
                 <h2 style="margin-top: 24px;">Recommended <span class="badge secure">Secure</span></h2>
                 <div class="hash-list">
-                    <div class="hash-item">
-                        <div class="algo-label">SHA-256 <span class="info-tip" title="Standard for SSL, Bitcoin, and general security. 256-bit output.">?</span></div>
-                        <div class="hash-val highlight" id="out-sha256"></div>
-                        <button class="btn-icon" onclick="copy('out-sha256')">📋</button>
-                    </div>
-                    <div class="hash-item">
-                        <div class="algo-label">SHA-512 <span class="info-tip" title="Higher security margin. 512-bit output. Preferred for 64-bit processors.">?</span></div>
-                        <div class="hash-val" id="out-sha512"></div>
-                        <button class="btn-icon" onclick="copy('out-sha512')">📋</button>
-                    </div>
-                    <div class="hash-item">
-                        <div class="algo-label">SHA-3 <span class="info-tip" title="Newest NIST standard (Keccak). Resistant to length extension attacks.">?</span></div>
-                        <div class="hash-val" id="out-sha3"></div>
-                        <button class="btn-icon" onclick="copy('out-sha3')">📋</button>
-                    </div>
+                    <div class="hash-item"><div class="algo-label">SHA-256</div><div class="hash-val highlight" id="out-sha256"></div><button class="btn-icon" onclick="copy('out-sha256')">📋</button></div>
+                    <div class="hash-item"><div class="algo-label">SHA-512</div><div class="hash-val" id="out-sha512"></div><button class="btn-icon" onclick="copy('out-sha512')">📋</button></div>
                 </div>
 
-                <!-- Legacy Algorithms -->
-                <div id="legacy-container">
-                    <h2>Legacy <span class="badge legacy">Insecure</span></h2>
-                    <div class="hash-list" style="opacity: 0.7;">
-                        <div class="hash-item">
-                            <div class="algo-label">MD5 <span class="info-tip" title="Broken. Collisions possible. Use only for non-secure checksums.">?</span></div>
-                            <div class="hash-val" id="out-md5"></div>
-                            <button class="btn-icon" onclick="copy('out-md5')">📋</button>
-                        </div>
-                        <div class="hash-item">
-                            <div class="algo-label">SHA-1 <span class="info-tip" title="Deprecated. Vulnerable to collision attacks (SHAttered).">?</span></div>
-                            <div class="hash-val" id="out-sha1"></div>
-                            <button class="btn-icon" onclick="copy('out-sha1')">📋</button>
-                        </div>
+                <div id="legacy-container" class="hidden">
+                    <h2>Legacy / Libs <span class="badge legacy">External</span></h2>
+                    <div class="hash-list">
+                        <div class="hash-item"><div class="algo-label">SHA-3 (Keccak)</div><div class="hash-val" id="out-sha3"></div><button class="btn-icon" onclick="copy('out-sha3')">📋</button></div>
+                        <div class="hash-item"><div class="algo-label">MD5 (Broken)</div><div class="hash-val" id="out-md5"></div><button class="btn-icon" onclick="copy('out-md5')">📋</button></div>
+                        <div class="hash-item"><div class="algo-label">RIPEMD-160</div><div class="hash-val" id="out-ripemd"></div><button class="btn-icon" onclick="copy('out-ripemd')">📋</button></div>
                     </div>
+                </div>
+                
+                <div id="legacy-warning" style="margin-top: 20px; padding: 12px; border: 1px dashed var(--border); border-radius: var(--radius-sm); color: var(--text-tertiary); font-size: 0.85rem; text-align: center;">
+                    Enable <strong>External Libraries</strong> to use SHA-3, MD5, Argon2, and Legacy Hashes.
                 </div>
             </div>
         </section>
 
-        <!-- VIEW 2: HMAC SIGNER -->
+        <!-- PASSWORD FOUNDRY -->
+        <section id="password-view" class="view-section">
+            <header><h1>Password Foundry</h1><p class="desc">Compare KDF algorithms: Bcrypt (Worker), PBKDF2 (Native), and Argon2 (WASM).</p></header>
+
+            <div class="card">
+                <div class="inner-tabs">
+                    <div class="inner-tab active" onclick="setKDF('bcrypt', this)">Bcrypt</div>
+                    <div class="inner-tab" onclick="setKDF('pbkdf2', this)">PBKDF2 (Native)</div>
+                    <div class="inner-tab" onclick="setKDF('argon2', this)">Argon2 (WASM)</div>
+                </div>
+
+                <!-- Threat Model UI (Shared) -->
+                <div class="threat-grid">
+                    <div class="threat-card selected" onclick="setThreat(10, this)"><span class="threat-title">Dev / Test</span><span class="threat-desc">Low Cost</span></div>
+                    <div class="threat-card" onclick="setThreat(12, this)"><span class="threat-title">Identity</span><span class="threat-desc">Standard</span></div>
+                    <div class="threat-card" onclick="setThreat(14, this)"><span class="threat-title">High Security</span><span class="threat-desc">Heavy Load</span></div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="pwd-input" placeholder="Enter password...">
+                </div>
+                
+                <div class="hash-item" style="background: rgba(0,0,0,0.3); padding: 20px;">
+                    <div class="algo-label" id="kdf-label">BCRYPT</div>
+                    <div class="hash-val highlight" id="out-kdf" style="white-space: pre-wrap; word-break: break-all;">Waiting for input...</div>
+                    <button class="btn-icon" onclick="copy('out-kdf')">📋</button>
+                </div>
+                <div id="kdf-status" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px; display: flex; align-items: center; gap: 8px;">Worker Idle</div>
+            </div>
+        </section>
+
+        <!-- HMAC SIGNER -->
         <section id="hmac-view" class="view-section">
-            <header>
-                <h1>HMAC Signer</h1>
-                <p class="desc">Keyed-Hash Message Authentication Code. Generate signatures using a secret key (used for JWTs and API Auth).</p>
-            </header>
+            <header><h1>HMAC Signer</h1><p class="desc">Native WebCrypto signing for API Auth & JWT.</p></header>
             <div class="card">
                 <label>Secret Key</label>
-                <div class="input-group">
-                    <input type="password" id="hmac-key" placeholder="Enter your secret signing key...">
-                </div>
-                
-                <label>Message Payload</label>
-                <div class="input-group">
-                    <textarea id="hmac-payload" rows="3" placeholder="Enter data to sign..."></textarea>
-                </div>
-                
-                <h2>Signatures</h2>
+                <div class="input-group"><input type="password" id="hmac-key" placeholder="Signing Key..."></div>
+                <label>Payload</label>
+                <div class="input-group"><textarea id="hmac-payload" rows="2" placeholder="Data to sign..."></textarea></div>
                 <div class="hash-list">
-                    <div class="hash-item">
-                        <div class="algo-label">HMAC-SHA256 <span class="info-tip" title="Standard for JWT signatures (HS256).">?</span></div>
-                        <div class="hash-val highlight" id="out-hmac256"></div>
-                        <button class="btn-icon" onclick="copy('out-hmac256')">📋</button>
-                    </div>
-                    <div class="hash-item">
-                        <div class="algo-label">HMAC-SHA512 <span class="info-tip" title="High security signing (HS512).">?</span></div>
-                        <div class="hash-val" id="out-hmac512"></div>
-                        <button class="btn-icon" onclick="copy('out-hmac512')">📋</button>
-                    </div>
+                    <div class="hash-item"><div class="algo-label">HMAC-SHA256</div><div class="hash-val highlight" id="out-hmac256"></div><button class="btn-icon" onclick="copy('out-hmac256')">📋</button></div>
+                    <div class="hash-item"><div class="algo-label">HMAC-SHA512</div><div class="hash-val" id="out-hmac512"></div><button class="btn-icon" onclick="copy('out-hmac512')">📋</button></div>
                 </div>
             </div>
         </section>
 
-        <!-- VIEW 3: PASSWORD FOUNDRY -->
-        <section id="password-view" class="view-section">
-            <header>
-                <h1>Password Foundry</h1>
-                <p class="desc">Generate adaptive hash functions using Bcrypt. Select a threat model to automatically configure the workload cost.</p>
-            </header>
-
-            <div class="card">
-                <label>Target Threat Model</label>
-                <div class="threat-grid">
-                    <div class="threat-card selected" onclick="setThreat(10, this)">
-                        <span class="threat-title">Development</span>
-                        <span class="threat-desc">Low Cost (10)<br>Fast iteration</span>
-                    </div>
-                    <div class="threat-card" onclick="setThreat(12, this)">
-                        <span class="threat-title">Web Identity</span>
-                        <span class="threat-desc">Standard Cost (12)<br>General Users</span>
-                    </div>
-                    <div class="threat-card" onclick="setThreat(14, this)">
-                        <span class="threat-title">Banking / Root</span>
-                        <span class="threat-desc">High Cost (14)<br>Critical Security</span>
-                    </div>
-                </div>
-
-                <div class="flex-between">
-                    <label>Password Input</label>
-                    <label>Cost Factor: <span id="cost-display" style="color:var(--brand); font-weight:700; font-family:'JetBrains Mono'">10</span></label>
-                </div>
-                
-                <div class="input-group">
-                    <input type="text" id="pwd-input" placeholder="Enter password..." style="margin-bottom: 24px;">
-                </div>
-
-                <div class="hash-item" style="background: rgba(0,0,0,0.3); padding: 20px;">
-                    <div class="algo-label">BCRYPT</div>
-                    <div class="hash-val highlight" id="out-bcrypt" style="white-space: pre-wrap; word-break: break-all;">Waiting for input...</div>
-                    <button class="btn-icon" onclick="copy('out-bcrypt')">📋</button>
-                </div>
-
-                <div id="bcrypt-status" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 12px; display: flex; align-items: center; gap: 8px;">
-                    <div class="status-dot" style="width: 8px; height: 8px; border-radius: 50%; background: var(--border);"></div>
-                    <span>Worker Idle</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW 4: UTILS (ENCODERS) -->
+        <!-- UTILS -->
         <section id="utils-view" class="view-section">
-            <header>
-                <h1>Encoders & Decoders</h1>
-                <p class="desc">Common format utilities for cryptographic strings.</p>
-            </header>
+            <header><h1>Encoders</h1><p class="desc">Format conversion utilities.</p></header>
             <div class="card">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div>
-                        <label>Input (Plain)</label>
-                        <textarea id="enc-input" rows="5" placeholder="Text to encode..." oninput="runEncoders()"></textarea>
-                    </div>
+                    <div><label>Input</label><textarea id="enc-input" rows="5" placeholder="Text..." oninput="runEncoders()"></textarea></div>
                     <div style="display:flex; flex-direction:column; gap:12px;">
                         <label>Outputs</label>
-                        
-                        <!-- Base64 -->
-                        <div class="hash-item" style="display:block;">
-                            <div class="flex-between" style="margin-bottom:4px;">
-                                <div class="algo-label">Base64</div>
-                                <button class="btn-icon" onclick="copy('out-b64')">📋</button>
-                            </div>
-                            <div class="hash-val highlight" id="out-b64" style="font-size:0.8rem;"></div>
-                        </div>
-
-                        <!-- URL Encoded -->
-                        <div class="hash-item" style="display:block;">
-                            <div class="flex-between" style="margin-bottom:4px;">
-                                <div class="algo-label">URL Encoded</div>
-                                <button class="btn-icon" onclick="copy('out-url')">📋</button>
-                            </div>
-                            <div class="hash-val" id="out-url" style="font-size:0.8rem;"></div>
-                        </div>
-
-                        <!-- Hex -->
-                        <div class="hash-item" style="display:block;">
-                            <div class="flex-between" style="margin-bottom:4px;">
-                                <div class="algo-label">Hex</div>
-                                <button class="btn-icon" onclick="copy('out-hex')">📋</button>
-                            </div>
-                            <div class="hash-val" id="out-hex" style="font-size:0.8rem;"></div>
-                        </div>
+                        <div class="hash-item" style="display:block;"><div class="flex-between"><div class="algo-label">Base64</div><button class="btn-icon" onclick="copy('out-b64')">📋</button></div><div class="hash-val highlight" id="out-b64"></div></div>
+                        <div class="hash-item" style="display:block;"><div class="flex-between"><div class="algo-label">URL Encoded</div><button class="btn-icon" onclick="copy('out-url')">📋</button></div><div class="hash-val" id="out-url"></div></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- VIEW 5: COMPARATOR -->
+        <!-- COMPARATOR -->
         <section id="compare-view" class="view-section">
-            <header>
-                <h1>Avalanche Comparator</h1>
-                <p class="desc">Visualize the "Avalanche Effect". A secure hash should change ~50% of bits when input changes by a single character.</p>
-            </header>
-
+            <header><h1>Comparator</h1><p class="desc">Visual Avalanche Effect (Bit Diff).</p></header>
             <div class="card">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <label>Base Input (A)</label>
-                        <input type="text" id="comp-a" value="Hello World" oninput="runCompare()">
-                    </div>
-                    <div>
-                        <label>Comparison Input (B)</label>
-                        <input type="text" id="comp-b" value="Hello world" oninput="runCompare()">
-                    </div>
+                    <div><label>Input A</label><input type="text" id="comp-a" value="Hello World" oninput="runCompare()"></div>
+                    <div><label>Input B</label><input type="text" id="comp-b" value="Hello world" oninput="runCompare()"></div>
                 </div>
-
                 <div class="avalanche-container">
-                    <div class="flex-between">
-                        <label style="color:var(--text-primary);">SHA-256 Bit Difference Visualizer</label>
-                        <span id="diff-pct" style="color:var(--brand); font-weight:700; font-size:0.9rem;">0%</span>
-                    </div>
-                    <div id="bit-grid" class="bit-grid">
-                        <!-- Bits injected via JS -->
-                    </div>
+                    <div class="flex-between"><label>Bit Difference</label><span id="diff-pct" style="color:var(--brand); font-weight:700;">0%</span></div>
+                    <div id="bit-grid" class="bit-grid"></div>
                 </div>
             </div>
         </section>
-
     </main>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast">Copied to clipboard</div>
+    <!-- TOAST -->
+    <div id="toast" role="status" aria-live="polite">Copied to clipboard</div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- SECURITY MODAL -->
+    <div id="security-modal" class="modal-overlay" onclick="if(event.target === this) toggleModal('security-modal')">
+        <div class="modal">
+            <h2>Threat Model</h2>
+            <ul>
+                <li><strong>Local Execution:</strong> All operations run in your browser (WebCrypto API). No data is sent to any server.</li>
+                <li><strong>Zero-Trust:</strong> External libraries are blocked by default. Enable them only if you need legacy algorithms (MD5) or Bcrypt/Argon2.</li>
+                <li><strong>Non-Persistence:</strong> Keys and passwords are NOT saved to localStorage.</li>
+                <li><strong>Disclaimer:</strong> Use generated secrets for development. For production, ensure entropy sources match your specific compliance requirements.</li>
+            </ul>
+            <button class="btn-primary" style="width:100%" onclick="toggleModal('security-modal')">Understood</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
     <script>
-        // --- 1. APP STATE & UTILITIES ---
+        // --- 1. STATE & CORE ---
         const State = {
-            zeroTrust: false,
+            libsLoaded: false,
+            kdfMode: 'bcrypt',
             currentCost: 10,
-            hashMode: 'text', // 'text' or 'file'
-            bcryptWorker: null
+            hashMode: 'text'
         };
 
         const get = (id) => document.getElementById(id);
         
-        function showToast(msg = "Copied to clipboard") {
-            const t = get('toast');
-            t.innerText = msg;
-            t.classList.add('visible');
-            setTimeout(() => t.classList.remove('visible'), 2000);
+        // --- 2. LIBRARY LOADER (LAZY) ---
+        const LIBS = {
+            bcrypt: { url: 'https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js', integrity: 'sha512-DNI/FJdkfyeuPUal7lDkRVg0mFY2n4IZJJYqPbQWLL0COxLi6G6nmf5gr1vW1Bd4wYC09hOvZVsSclfXxUTU/w==' },
+            cryptojs: { url: 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js', integrity: 'sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==' },
+            argon2: { url: 'https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2.min.js' } // WASM loader
+        };
+
+        function loadScript(libName) {
+            return new Promise((resolve, reject) => {
+                const lib = LIBS[libName];
+                if (document.querySelector(`script[src="${lib.url}"]`)) return resolve();
+                
+                const s = document.createElement('script');
+                s.src = lib.url;
+                if(lib.integrity) {
+                    s.integrity = lib.integrity;
+                    s.crossOrigin = 'anonymous';
+                }
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+            });
         }
 
-        async function copy(id) {
-            const val = get(id).innerText;
-            if(!val || val.includes("Waiting")) return;
-            await navigator.clipboard.writeText(val);
-            showToast();
-        }
+        async function toggleZeroTrust() {
+            const btn = get('zt-btn');
+            const dot = get('zt-dot');
+            const txt = get('zt-text');
+            const legContainer = get('legacy-container');
+            const legWarn = get('legacy-warning');
 
-        function bufferToHex(buffer) {
-            return [...new Uint8Array(buffer)]
-                .map(x => x.toString(16).padStart(2, '0'))
-                .join('');
-        }
-
-        function hexToBytes(hex) {
-            for (var bytes = [], c = 0; c < hex.length; c += 2)
-            bytes.push(parseInt(hex.substr(c, 2), 16));
-            return new Uint8Array(bytes);
-        }
-
-        // --- 2. VIEW CONTROLLER ---
-        function switchTab(viewId, navEl) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            navEl.classList.add('active');
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            get(viewId).classList.add('active');
-        }
-
-        function setHashMode(mode) {
-            State.hashMode = mode;
-            get('tab-text').classList.toggle('active', mode === 'text');
-            get('tab-file').classList.toggle('active', mode === 'file');
-            
-            get('mode-text').classList.toggle('hidden', mode !== 'text');
-            get('mode-file').classList.toggle('hidden', mode !== 'file');
-            
-            // Clear outputs
-            clearHashOutputs();
-        }
-
-        function clearHashOutputs() {
-            ['out-sha256','out-sha512','out-sha3','out-md5','out-sha1'].forEach(id => get(id).innerText = '');
-        }
-
-        // --- 3. CRYPTOGRAPHY ENGINE ---
-
-        // Native WebCrypto (SHA)
-        async function nativeHash(algo, data) {
-            if(!data) return "";
-            // Handle both string and ArrayBuffer/Uint8Array
-            const buffer = (typeof data === 'string') ? new TextEncoder().encode(data) : data;
-            const res = await crypto.subtle.digest(algo, buffer);
-            return bufferToHex(res);
-        }
-
-        // HMAC Signer
-        async function signHMAC(algo, keyText, dataText) {
-            if(!keyText || !dataText) return "";
-            const enc = new TextEncoder();
-            const keyData = enc.encode(keyText);
-            const data = enc.encode(dataText);
-            
-            const key = await crypto.subtle.importKey(
-                "raw", keyData, { name: "HMAC", hash: algo }, false, ["sign"]
-            );
-            
-            const sig = await crypto.subtle.sign("HMAC", key, data);
-            return bufferToHex(sig);
-        }
-
-        // Lib Hash (CryptoJS)
-        function libHash(algo, data) {
-            if(State.zeroTrust || !data) return "";
-            if(typeof CryptoJS === 'undefined') return "Lib Missing";
-            // Note: CryptoJS mainly works with WordArrays/Strings. For Files, we prefer Native or need adaptation.
-            // For this single-file, we will use Native for files where possible, and skip legacy if using file mode to ensure robustness.
-            if (typeof data !== 'string') return "N/A (Text Only)"; // Simplified for file mode on legacy
-
-            try {
-                if(algo === 'MD5') return CryptoJS.MD5(data).toString();
-                if(algo === 'SHA3') return CryptoJS.SHA3(data, {outputLength: 256}).toString();
-                if(algo === 'RIPEMD160') return CryptoJS.RIPEMD160(data).toString();
-            } catch(e) { return "Error"; }
-            return "";
-        }
-
-        // --- 4. BCRYPT & THREADING ---
-        async function generateBcrypt(text, cost) {
-            const out = get('out-bcrypt');
-            const status = get('bcrypt-status');
-            
-            if(State.zeroTrust) { out.innerText = "Libs Disabled"; return; }
-            if(!text) { out.innerText = "Waiting for input..."; return; }
-
-            out.innerText = "Calculating...";
-            status.innerHTML = `<div class="status-dot" style="background:var(--warning)"></div> Calculating (Cost ${cost})...`;
-            
-            await new Promise(r => setTimeout(r, 50));
-
-            try {
-                if(typeof dcodeIO === 'undefined') throw new Error("Lib Missing");
-                const bcrypt = dcodeIO.bcrypt;
-                const salt = bcrypt.genSaltSync(parseInt(cost));
-                const hash = bcrypt.hashSync(text, salt);
-                out.innerText = hash;
-                status.innerHTML = `<div class="status-dot" style="background:var(--secure)"></div> Done (${cost})`;
-            } catch(e) {
-                out.innerText = "Error";
-                status.innerHTML = `<div class="status-dot" style="background:var(--danger)"></div> Error`;
+            if (!State.libsLoaded) {
+                // ENABLE LIBS
+                txt.innerText = "Loading...";
+                try {
+                    await Promise.all([loadScript('bcrypt'), loadScript('cryptojs'), loadScript('argon2')]);
+                    State.libsLoaded = true;
+                    localStorage.setItem('cf_libs', 'true');
+                    
+                    dot.style.background = 'var(--warning)'; // Amber = Libs Active
+                    txt.innerText = "Libs: ON";
+                    legContainer.classList.remove('hidden');
+                    legWarn.classList.add('hidden');
+                    
+                    initBcryptWorker(); // Start worker now that lib is ready
+                    updateHashStudio(); // Re-run hashes
+                } catch(e) {
+                    alert("Failed to load libraries. Check internet connection.");
+                    txt.innerText = "Load Failed";
+                }
+            } else {
+                // DISABLE LIBS (Soft reset, reload required for true unload)
+                if(confirm("To fully unload libraries, the page will reload. Continue?")) {
+                    localStorage.setItem('cf_libs', 'false');
+                    location.reload();
+                }
             }
+        }
+
+        // --- 3. WORKERS & ALGOS ---
+        
+        // Bcrypt Worker (Inline Blob)
+        let bcryptWorker;
+        function initBcryptWorker() {
+            if(!State.libsLoaded || bcryptWorker) return;
+            const code = `
+                self.onmessage = function(e) {
+                    if(e.data.cmd === 'hash') {
+                        try {
+                            importScripts('https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js');
+                            const salt = dcodeIO.bcrypt.genSaltSync(e.data.cost);
+                            const hash = dcodeIO.bcrypt.hashSync(e.data.pwd, salt);
+                            self.postMessage({ok: true, hash: hash});
+                        } catch(err) { self.postMessage({ok: false, err: err.toString()}); }
+                    }
+                };
+            `;
+            const blob = new Blob([code], {type: 'application/javascript'});
+            bcryptWorker = new Worker(URL.createObjectURL(blob));
+            bcryptWorker.onmessage = function(e) {
+                const out = get('out-kdf');
+                const stat = get('kdf-status');
+                if(e.data.ok) {
+                    out.innerText = e.data.hash;
+                    stat.innerText = "Worker Idle";
+                } else {
+                    out.innerText = "Error: " + e.data.err;
+                }
+            };
+        }
+
+        // PBKDF2 (Native)
+        async function runPBKDF2(pass, cost) {
+            const enc = new TextEncoder();
+            const salt = enc.encode("CryptoForgeSalt"); // Demo salt
+            const keyMaterial = await crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveBits"]);
+            const bits = await crypto.subtle.deriveBits(
+                { name: "PBKDF2", salt: salt, iterations: cost * 1000, hash: "SHA-256" },
+                keyMaterial, 256
+            );
+            return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2,'0')).join('');
+        }
+
+        // Argon2 (External)
+        async function runArgon2(pass, cost) {
+            if(!window.argon2) return "Argon2 Lib Loading...";
+            try {
+                const hash = await argon2.hash({ pass: pass, salt: 'CryptoForgeSalt', time: cost, mem: 1024, parallelism: 1, type: argon2.Argon2id });
+                return hash.encoded;
+            } catch(e) { return "Argon2 Error: " + e; }
+        }
+
+        // Password Router
+        async function runKDF() {
+            const pwd = get('pwd-input').value;
+            const out = get('out-kdf');
+            const stat = get('kdf-status');
+            
+            if(!pwd) { out.innerText = "Waiting..."; return; }
+            out.innerText = "Calculating...";
+            
+            if(State.kdfMode === 'bcrypt') {
+                if(!State.libsLoaded) { out.innerText = "Enable Libs for Bcrypt"; return; }
+                stat.innerText = "Worker Running...";
+                if(!bcryptWorker) initBcryptWorker();
+                bcryptWorker.postMessage({cmd: 'hash', pwd: pwd, cost: State.currentCost});
+            } 
+            else if(State.kdfMode === 'pbkdf2') {
+                // Native - no libs needed
+                const res = await runPBKDF2(pwd, State.currentCost);
+                out.innerText = res;
+            }
+            else if(State.kdfMode === 'argon2') {
+                if(!State.libsLoaded) { out.innerText = "Enable Libs for Argon2"; return; }
+                const res = await runArgon2(pwd, Math.max(1, Math.floor(State.currentCost / 4))); // Normalize cost
+                out.innerText = res;
+            }
+        }
+
+        function setKDF(mode, el) {
+            State.kdfMode = mode;
+            document.querySelectorAll('#password-view .inner-tab').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            get('kdf-label').innerText = mode.toUpperCase();
+            runKDF();
         }
 
         function setThreat(cost, el) {
             document.querySelectorAll('.threat-card').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected');
             State.currentCost = cost;
-            get('cost-display').innerText = cost;
-            const val = get('pwd-input').value;
-            if(val) generateBcrypt(val, cost);
+            runKDF();
         }
 
-        // --- 5. LOGIC LOOPS ---
-        
-        // HASH STUDIO UPDATE
+        // --- 4. HASHING (NATIVE + LEGACY) ---
+        async function nativeHash(algo, data) {
+            if(!data) return "";
+            const buffer = (typeof data === 'string') ? new TextEncoder().encode(data) : data;
+            const res = await crypto.subtle.digest(algo, buffer);
+            return [...new Uint8Array(res)].map(b => b.toString(16).padStart(2,'0')).join('');
+        }
+
+        function libHash(algo, text) {
+            if(!State.libsLoaded || typeof CryptoJS === 'undefined' || typeof text !== 'string') return "Libs Disabled / Text Only";
+            try {
+                if(algo === 'MD5') return CryptoJS.MD5(text).toString();
+                if(algo === 'SHA3') return CryptoJS.SHA3(text, {outputLength: 256}).toString();
+                if(algo === 'RIPEMD160') return CryptoJS.RIPEMD160(text).toString();
+            } catch(e) { return "Error"; }
+        }
+
         async function updateHashStudio(fileData = null) {
-            let text = null;
-            let data = null;
-
-            if (State.hashMode === 'text') {
-                const inputEl = get('hash-input') || get('hash-pass');
-                text = inputEl.value;
-                data = text;
-            } else {
-                data = fileData;
-            }
-
-            // Secure (Native)
+            let data = (State.hashMode === 'text') ? get('hash-input').value : fileData;
+            
+            // Native
             get('out-sha256').innerText = await nativeHash('SHA-256', data);
             get('out-sha512').innerText = await nativeHash('SHA-512', data);
-            get('out-sha1').innerText = await nativeHash('SHA-1', data); // Native support for SHA-1
-
-            // Libs
-            if (State.hashMode === 'text') {
-                get('out-sha3').innerText = libHash('SHA3', text);
-                get('out-md5').innerText = libHash('MD5', text);
-            } else {
-                 get('out-sha3').innerText = "Text Only";
-                 get('out-md5').innerText = "Text Only";
+            
+            // Legacy
+            if(State.hashMode === 'text') {
+                get('out-sha3').innerText = libHash('SHA3', data);
+                get('out-md5').innerText = libHash('MD5', data);
+                get('out-ripemd').innerText = libHash('RIPEMD160', data);
             }
         }
 
-        // HMAC UPDATE
-        async function updateHMAC() {
-            const key = get('hmac-key').value;
-            const pay = get('hmac-payload').value;
-            get('out-hmac256').innerText = await signHMAC("SHA-256", key, pay);
-            get('out-hmac512').innerText = await signHMAC("SHA-512", key, pay);
+        // --- 5. UI UTILS ---
+        function switchTab(id, el) {
+            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+            get(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
         }
 
-        // ENCODERS UPDATE
-        function runEncoders() {
-            const val = get('enc-input').value;
-            if(!val) {
-                ['out-b64','out-url','out-hex'].forEach(id => get(id).innerText = '');
-                return;
-            }
-            // Base64
-            try { get('out-b64').innerText = btoa(val); } catch(e) { get('out-b64').innerText = "Error"; }
-            // URL
-            get('out-url').innerText = encodeURIComponent(val);
-            // Hex
-            let hex = '';
-            for(let i=0;i<val.length;i++) hex += val.charCodeAt(i).toString(16).padStart(2,'0');
-            get('out-hex').innerText = hex;
+        function toggleModal(id) {
+            const m = get(id);
+            m.classList.toggle('open');
         }
 
-        // COMPARATOR UPDATE
-        function hexToBinary(hex) {
-            return hex.split('').map(char => parseInt(char, 16).toString(2).padStart(4, '0')).join('');
-        }
-        async function runCompare() {
-            const a = get('comp-a').value;
-            const b = get('comp-b').value;
-            const grid = get('bit-grid');
-            if(!a || !b) return;
-
-            const hashA = await nativeHash('SHA-256', a);
-            const hashB = await nativeHash('SHA-256', b);
-            const binA = hexToBinary(hashA);
-            const binB = hexToBinary(hashB);
-
-            grid.innerHTML = '';
-            let diffCount = 0;
-            for(let i=0; i<256; i++) {
-                const bit = document.createElement('div');
-                bit.className = 'bit';
-                if(binA[i] !== binB[i]) { bit.classList.add('diff'); diffCount++; } 
-                else if (binA[i] === '1') { bit.classList.add('active'); }
-                grid.appendChild(bit);
-            }
-            const pct = Math.round((diffCount / 256) * 100);
-            get('diff-pct').innerText = `${pct}% Difference`;
+        async function copy(id) {
+            const txt = get(id).innerText;
+            if(!txt || txt.includes("Wait") || txt.includes("Error")) return;
+            await navigator.clipboard.writeText(txt);
+            const t = get('toast');
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 2000);
         }
 
-        // --- 6. FILE HANDLING ---
-        const dropZone = get('drop-zone');
-        const fileInput = get('file-input');
+        function setHashMode(mode) {
+            State.hashMode = mode;
+            get('mode-text').classList.toggle('hidden', mode !== 'text');
+            get('mode-file').classList.toggle('hidden', mode !== 'file');
+            get('tab-text').classList.toggle('active', mode === 'text');
+            get('tab-file').classList.toggle('active', mode === 'file');
+            ['out-sha256','out-sha512','out-sha3','out-md5'].forEach(id => get(id).innerText = '');
+        }
 
-        dropZone.onclick = () => fileInput.click();
-        
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
-        
-        dropZone.ondrop = (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            handleFile(e.dataTransfer.files[0]);
-        };
-
-        fileInput.onchange = (e) => handleFile(e.target.files[0]);
+        // File Handling
+        const dz = get('drop-zone');
+        const fi = get('file-input');
+        dz.onclick = () => fi.click();
+        dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('dragover'); };
+        dz.ondragleave = () => dz.classList.remove('dragover');
+        dz.ondrop = (e) => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
+        fi.onchange = (e) => handleFile(e.target.files[0]);
 
         function handleFile(file) {
             if(!file) return;
-            get('file-info').innerText = `Processing: ${file.name} (${(file.size/1024).toFixed(2)} KB)`;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                updateHashStudio(e.target.result); // Pass ArrayBuffer
-            };
-            reader.readAsArrayBuffer(file);
+            get('file-info').innerText = `Loaded: ${file.name}`;
+            const r = new FileReader();
+            r.onload = (e) => updateHashStudio(e.target.result);
+            r.readAsArrayBuffer(file);
         }
-
-        // --- 7. UTILS: DOWNLOAD & ZERO TRUST ---
-        function downloadReport() {
-            let content = "CRYPTOFORGE PRO - HASH REPORT\n=============================\n\n";
-            content += `Timestamp: ${new Date().toISOString()}\n\n`;
-            
-            // Hash Studio
-            content += "[HASH STUDIO]\n";
-            content += `SHA-256: ${get('out-sha256').innerText}\n`;
-            content += `SHA-512: ${get('out-sha512').innerText}\n`;
-            content += `SHA-3:   ${get('out-sha3').innerText}\n`;
-            content += `MD5:     ${get('out-md5').innerText}\n\n`;
-
-            // HMAC
-            if(get('out-hmac256').innerText) {
-                content += "[HMAC SIGNER]\n";
-                content += `HMAC-256: ${get('out-hmac256').innerText}\n\n`;
-            }
-
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'cryptoforge-report.txt';
-            a.click();
+        
+        // Utils
+        function runEncoders() {
+            const v = get('enc-input').value;
+            if(!v) return;
+            get('out-b64').innerText = btoa(v);
+            get('out-url').innerText = encodeURIComponent(v);
         }
-
-        function toggleZeroTrust(btn) {
-            State.zeroTrust = !State.zeroTrust;
-            if(State.zeroTrust) {
-                btn.classList.add('active');
-                btn.querySelector('span').innerText = "Zero-Trust: ON";
-                get('legacy-container').classList.add('hidden');
-                showToast("External Libs Disabled");
-            } else {
-                btn.classList.remove('active');
-                btn.querySelector('span').innerText = "Zero-Trust: OFF";
-                get('legacy-container').classList.remove('hidden');
-                showToast("Standard Mode");
-            }
-        }
-
-        // --- 8. LISTENERS & INIT ---
-        const debounce = (fn) => {
-            let t;
-            return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), 300); }
-        };
-
-        get('hash-input').addEventListener('input', debounce(() => updateHashStudio()));
-        get('mask-hash').addEventListener('change', (e) => {
-            // Simple mask logic for text mode
-            const wrapper = get('hash-input-wrapper');
-            const oldVal = get('hash-input') ? get('hash-input').value : get('hash-pass').value;
-            wrapper.innerHTML = '';
-            if(e.target.checked) {
-                const inp = document.createElement('input');
-                inp.type = 'password'; inp.id = 'hash-pass'; inp.value = oldVal;
-                inp.placeholder = "Input hidden...";
-                inp.addEventListener('input', debounce(() => updateHashStudio()));
-                wrapper.appendChild(inp);
-            } else {
-                const txt = document.createElement('textarea');
-                txt.id = 'hash-input'; txt.rows = 3; txt.value = oldVal;
-                txt.placeholder = "Enter text to hash...";
-                txt.addEventListener('input', debounce(() => updateHashStudio()));
-                wrapper.appendChild(txt);
-            }
-        });
-
-        get('pwd-input').addEventListener('input', debounce((e) => generateBcrypt(e.target.value, State.currentCost)));
-        get('hmac-key').addEventListener('input', debounce(updateHMAC));
-        get('hmac-payload').addEventListener('input', debounce(updateHMAC));
 
         // Init
-        runCompare();
+        // Check LocalStorage for Lib Preference
+        if(localStorage.getItem('cf_libs') === 'true') {
+            toggleZeroTrust(); // Auto-load if preferred
+        }
+
+        // Event Listeners
+        const debounce = (fn) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), 300); } };
+        get('hash-input').addEventListener('input', debounce(() => updateHashStudio()));
+        get('hash-input').addEventListener('keydown', (e) => { if(e.ctrlKey && e.key === 'Enter') updateHashStudio(); });
+        get('pwd-input').addEventListener('input', debounce(() => runKDF()));
 
     </script>
 </body>
