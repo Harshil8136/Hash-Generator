@@ -195,6 +195,6 @@ Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 **If you find CryptoForge Pro useful, consider giving it a ⭐**
 
-Built with ❤️ by [Harshil Patel](https://github.com/Harshil8136)
+Built with ❤️ by [Harshil Panchal](https://github.com/Harshil8136)
 
 </div>
