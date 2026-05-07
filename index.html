@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CryptoForge Pro — Professional developer cryptography toolkit. SHA-256, AES-256-GCM encryption, JWT decoding, TOTP generation, password analysis. 100% client-side, zero data transmission.">
+    <meta name="keywords" content="hash generator, SHA-256, AES encryption, JWT decoder, TOTP, password strength, cryptography, developer tools, WebCrypto">
+    <meta name="author" content="Harshil Patel">
+    <meta name="theme-color" content="#6366f1">
+    <meta property="og:title" content="CryptoForge Pro — Developer Cryptography Suite">
+    <meta property="og:description" content="11-tool cryptography suite running entirely in-browser. Hashing, encryption, key derivation, JWT decoding, and more.">
+    <meta property="og:type" content="website">
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net blob:;
+        worker-src 'self' blob:;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src https://fonts.gstatic.com;
+        connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        img-src 'self' data:;
+    ">
+
+    <title>CryptoForge Pro | Developer Cryptography Suite</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modules.css">
+</head>
+<body>
+    <!-- SVG SPRITE SHEET -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="icon-hash" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+        <symbol id="icon-key" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+        <symbol id="icon-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+        <symbol id="icon-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+        <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+        <symbol id="icon-compare" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+        <symbol id="icon-terminal" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></symbol>
+        <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+        <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    </svg>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" role="navigation" aria-label="Main navigation">
+        <div class="brand-block" onclick="document.getElementById('security-modal').classList.toggle('open')">
+            <div class="brand-title">CryptoForge</div>
+            <div class="brand-subtitle">PRO SUITE</div>
+            <div class="brand-version">v2.0</div>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-section-label">Crypto Tools</div>
+            <div class="nav-item active" data-view="hash-studio"><svg class="icon"><use href="#icon-hash"/></svg><span>Hash Studio</span></div>
+            <div class="nav-item" data-view="key-generator"><svg class="icon"><use href="#icon-key"/></svg><span>Key Generator</span></div>
+            <div class="nav-item" data-view="kdf-engine"><svg class="icon"><use href="#icon-lock"/></svg><span>Key Derivation</span></div>
+            <div class="nav-item" data-view="hmac-signer"><svg class="icon"><use href="#icon-zap"/></svg><span>HMAC Signer</span></div>
+            <div class="nav-item" data-view="aes-cipher"><svg class="icon"><use href="#icon-shield"/></svg><span>AES Cipher</span><span class="badge-new">NEW</span></div>
+            <div class="nav-item" data-view="jwt-decoder"><svg class="icon"><use href="#icon-eye"/></svg><span>JWT Decoder</span><span class="badge-new">NEW</span></div>
+
+            <div class="nav-section-label">Utilities</div>
+            <div class="nav-item" data-view="encoders"><svg class="icon"><use href="#icon-code"/></svg><span>Encode / Decode</span></div>
+            <div class="nav-item" data-view="password-analyzer"><svg class="icon"><use href="#icon-check"/></svg><span>Password Analyzer</span><span class="badge-new">NEW</span></div>
+            <div class="nav-item" data-view="totp-generator"><svg class="icon"><use href="#icon-clock"/></svg><span>TOTP Generator</span><span class="badge-new">NEW</span></div>
+            <div class="nav-item" data-view="hash-verifier"><svg class="icon"><use href="#icon-check"/></svg><span>Hash Verifier</span><span class="badge-new">NEW</span></div>
+            <div class="nav-item" data-view="comparator"><svg class="icon"><use href="#icon-compare"/></svg><span>Avalanche Analyzer</span></div>
+
+            <div class="nav-spacer"></div>
+
+            <div class="nav-footer">
+                <div class="nav-item" id="theme-toggle" role="button" aria-label="Toggle theme">
+                    <span id="theme-icon">☀</span><span>Theme</span>
+                </div>
+                <div class="nav-item" id="zt-btn" role="button">
+                    <div class="status-dot off" id="zt-dot"></div><span id="zt-text">Libs: OFF</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE OVERLAY -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open navigation">
+        <svg class="icon icon-lg"><use href="#icon-menu"/></svg>
+    </button>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <button class="search-trigger" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true}))">
+                <svg class="icon"><use href="#icon-search"/></svg>
+                <span>Search tools…</span>
+                <kbd>Ctrl K</kbd>
+            </button>
+        </header>
+
+        <!-- ===== HASH STUDIO ===== -->
+        <section id="hash-studio" class="view-section active">
+            <div class="section-header">
+                <h1>Hash Studio</h1>
+                <p class="section-desc">SHA-256 · SHA-512 · SHA-3 · MD5 · RIPEMD-160</p>
+            </div>
+            <div class="tab-bar">
+                <button class="tab active" id="tab-text">Text Input</button>
+                <button class="tab" id="tab-file">File Input</button>
+            </div>
+            <div id="mode-text">
+                <textarea class="input-area" id="hash-input" placeholder="Enter text to hash…" rows="4" spellcheck="false"></textarea>
+            </div>
+            <div id="mode-file" class="hidden">
+                <div class="drop-zone" id="drop-zone">
+                    <p>📁 Drop a file here or click to browse</p>
+                    <input type="file" id="file-input" hidden>
+                </div>
+                <p class="file-info" id="file-info"></p>
+            </div>
+            <div class="results-grid">
+                <div class="result-card"><div class="result-label">SHA-256 <span class="badge-native">Native</span></div><pre class="result-output" id="out-sha256"></pre><div class="result-actions"><button data-copy-hash="out-sha256" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-hash="SHA-256" class="btn-icon" title="Copy CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">SHA-512 <span class="badge-native">Native</span></div><pre class="result-output" id="out-sha512"></pre><div class="result-actions"><button data-copy-hash="out-sha512" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-hash="SHA-512" class="btn-icon" title="Copy CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">SHA-3-256 <span class="badge-lib">Lib</span></div><pre class="result-output" id="out-sha3"></pre><div class="result-actions"><button data-copy-hash="out-sha3" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">MD5 <span class="badge-lib">Lib</span></div><pre class="result-output" id="out-md5"></pre><div class="result-actions"><button data-copy-hash="out-md5" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">RIPEMD-160 <span class="badge-lib">Lib</span></div><pre class="result-output" id="out-ripemd"></pre><div class="result-actions"><button data-copy-hash="out-ripemd" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+            </div>
+            <button class="btn btn-secondary" id="btn-download-report">📄 Download Hash Report</button>
+        </section>
+
+        <!-- ===== KEY GENERATOR ===== -->
+        <section id="key-generator" class="view-section">
+            <div class="section-header"><h1>Key Generator</h1><p class="section-desc">CSPRNG-based random key generation</p></div>
+            <div class="results-grid">
+                <div class="result-card"><div class="result-label">256-bit Key (Base64)</div><pre class="result-output" id="out-gen-enc"></pre><div class="result-actions"><button data-copy-key="out-gen-enc" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-key="enc" class="btn-icon" title="CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button><button class="btn btn-sm" id="btn-gen-enc"><svg class="icon"><use href="#icon-refresh"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">256-bit Key (Hex)</div><pre class="result-output" id="out-gen-hex"></pre><div class="result-actions"><button data-copy-key="out-gen-hex" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-key="hex" class="btn-icon" title="CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button><button class="btn btn-sm" id="btn-gen-hex"><svg class="icon"><use href="#icon-refresh"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">UUID v4</div><pre class="result-output" id="out-gen-uuid"></pre><div class="result-actions"><button data-copy-key="out-gen-uuid" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-key="uuid" class="btn-icon" title="CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button><button class="btn btn-sm" id="btn-gen-uuid"><svg class="icon"><use href="#icon-refresh"/></svg></button></div></div>
+            </div>
+            <button class="btn btn-primary" id="btn-gen-all"><svg class="icon"><use href="#icon-refresh"/></svg> Regenerate All</button>
+        </section>
+
+        <!-- ===== KDF ENGINE ===== -->
+        <section id="kdf-engine" class="view-section">
+            <div class="section-header"><h1>Key Derivation Engine</h1><p class="section-desc">Bcrypt · PBKDF2 · Argon2id</p></div>
+            <div class="tab-bar">
+                <button class="inner-tab active" data-kdf="bcrypt">Bcrypt</button>
+                <button class="inner-tab" data-kdf="pbkdf2">PBKDF2</button>
+                <button class="inner-tab" data-kdf="argon2">Argon2id</button>
+            </div>
+            <input class="input-field" type="password" id="pwd-input" placeholder="Enter password…" autocomplete="off">
+            <div class="threat-grid">
+                <div class="threat-card selected" data-cost="10"><div class="threat-title">☁️ Light</div><div class="threat-desc">Cost 10 · ~100ms</div></div>
+                <div class="threat-card" data-cost="12"><div class="threat-title">🏢 Standard</div><div class="threat-desc">Cost 12 · ~500ms</div></div>
+                <div class="threat-card" data-cost="14"><div class="threat-title">🏛️ Heavy</div><div class="threat-desc">Cost 14 · ~1.5s</div></div>
+            </div>
+            <div id="threat-explain" class="threat-explain"><strong>Cost 10:</strong> Light hashing (~100ms). Suitable for development environments.</div>
+            <div class="result-card">
+                <div class="result-label"><span id="kdf-label">BCRYPT</span> Output</div>
+                <pre class="result-output" id="out-kdf"></pre>
+                <div class="kdf-meta"><span id="kdf-status">Worker Idle</span><span id="kdf-time">—</span><span id="kdf-salt" class="mono-sm"></span></div>
+            </div>
+        </section>
+
+        <!-- ===== HMAC SIGNER ===== -->
+        <section id="hmac-signer" class="view-section">
+            <div class="section-header"><h1>HMAC Signer</h1><p class="section-desc">HMAC-SHA256 · SHA384 · SHA512</p></div>
+            <input class="input-field" type="text" id="hmac-key" placeholder="Secret key…" spellcheck="false">
+            <textarea class="input-area" id="hmac-payload" placeholder="Payload to sign…" rows="3" spellcheck="false"></textarea>
+            <div class="results-grid">
+                <div class="result-card"><div class="result-label">HMAC-SHA256</div><pre class="result-output" id="out-hmac256"></pre><div class="result-actions"><button data-copy-hmac="out-hmac256" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-hmac="SHA-256" class="btn-icon" title="CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">HMAC-SHA384</div><pre class="result-output" id="out-hmac384"></pre><div class="result-actions"><button data-copy-hmac="out-hmac384" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">HMAC-SHA512</div><pre class="result-output" id="out-hmac512"></pre><div class="result-actions"><button data-copy-hmac="out-hmac512" class="btn-icon" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button><button data-cli-hmac="SHA-512" class="btn-icon" title="CLI"><svg class="icon"><use href="#icon-terminal"/></svg></button></div></div>
+            </div>
+        </section>
+
+        <!-- ===== AES CIPHER ===== -->
+        <section id="aes-cipher" class="view-section">
+            <div class="section-header"><h1>AES-256-GCM Cipher</h1><p class="section-desc">Password-based symmetric encryption via WebCrypto</p></div>
+            <div class="tab-bar">
+                <button class="tab active" id="aes-tab-enc">Encrypt</button>
+                <button class="tab" id="aes-tab-dec">Decrypt</button>
+            </div>
+            <label class="input-label" id="aes-input-label">Plaintext</label>
+            <textarea class="input-area" id="aes-input" placeholder="Enter text to encrypt…" rows="4" spellcheck="false"></textarea>
+            <input class="input-field" type="password" id="aes-password" placeholder="Password (used for PBKDF2 key derivation)…" autocomplete="off">
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btn-aes-run"><svg class="icon"><use href="#icon-zap"/></svg> Run</button>
+                <button class="btn btn-secondary" id="btn-aes-copy"><svg class="icon"><use href="#icon-copy"/></svg> Copy Output</button>
+            </div>
+            <div class="result-card"><div class="result-label">Output</div><pre class="result-output" id="aes-output"></pre><div id="aes-meta" class="cipher-meta"></div></div>
+        </section>
+
+        <!-- ===== JWT DECODER ===== -->
+        <section id="jwt-decoder" class="view-section">
+            <div class="section-header"><h1>JWT Decoder</h1><p class="section-desc">Inspect JSON Web Tokens client-side</p></div>
+            <textarea class="input-area" id="jwt-input" placeholder="Paste JWT (eyJ…) here…" rows="3" spellcheck="false"></textarea>
+            <div id="jwt-sections" class="jwt-sections hidden">
+                <div id="jwt-expiry" class="jwt-expiry-badge"></div>
+                <div class="jwt-section"><div class="jwt-section-label">Header <button class="btn-icon" id="btn-jwt-copy-header" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button></div><pre class="jwt-json" id="jwt-header-json"></pre></div>
+                <div class="jwt-section"><div class="jwt-section-label">Payload <button class="btn-icon" id="btn-jwt-copy-payload" title="Copy"><svg class="icon"><use href="#icon-copy"/></svg></button></div><pre class="jwt-json" id="jwt-payload-json"></pre></div>
+                <div class="jwt-section"><div class="jwt-section-label">Signature</div><pre class="jwt-sig" id="jwt-sig-display"></pre></div>
+            </div>
+        </section>
+
+        <!-- ===== ENCODERS ===== -->
+        <section id="encoders" class="view-section">
+            <div class="section-header"><h1>Encode / Decode</h1><p class="section-desc">Base64 · URL · Hex · Base32 · HTML Entity</p></div>
+            <div class="btn-row">
+                <label class="input-label" id="enc-input-label">Plaintext Input</label>
+                <button class="btn btn-sm btn-toggle" id="enc-direction" data-mode="encode">Encode →</button>
+            </div>
+            <textarea class="input-area" id="enc-input" placeholder="Enter text…" rows="3" spellcheck="false"></textarea>
+            <div class="results-grid">
+                <div class="result-card"><div class="result-label">Base64</div><pre class="result-output" id="out-b64"></pre><div class="result-actions"><button data-copy-enc="out-b64" class="btn-icon"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">URL Encode</div><pre class="result-output" id="out-url"></pre><div class="result-actions"><button data-copy-enc="out-url" class="btn-icon"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">Hex</div><pre class="result-output" id="out-hex"></pre><div class="result-actions"><button data-copy-enc="out-hex" class="btn-icon"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">Base32</div><pre class="result-output" id="out-b32"></pre><div class="result-actions"><button data-copy-enc="out-b32" class="btn-icon"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+                <div class="result-card"><div class="result-label">HTML Entity</div><pre class="result-output" id="out-html"></pre><div class="result-actions"><button data-copy-enc="out-html" class="btn-icon"><svg class="icon"><use href="#icon-copy"/></svg></button></div></div>
+            </div>
+        </section>
+
+        <!-- ===== PASSWORD ANALYZER ===== -->
+        <section id="password-analyzer" class="view-section">
+            <div class="section-header"><h1>Password Analyzer</h1><p class="section-desc">Strength estimation, entropy, crack-time analysis</p></div>
+            <input class="input-field" type="text" id="pw-analyze-input" placeholder="Type a password to analyze…" autocomplete="off">
+            <div class="pw-meter"><div class="pw-meter-fill" id="pw-meter-fill" data-score="0"></div></div>
+            <div class="pw-strength-label" id="pw-strength-label">—</div>
+            <div class="pw-stats-grid">
+                <div class="pw-stat-card"><div class="pw-stat-label">Entropy</div><div class="pw-stat-value" id="pw-entropy">—</div></div>
+                <div class="pw-stat-card"><div class="pw-stat-label">Charset</div><div class="pw-stat-value" id="pw-charset">—</div></div>
+                <div class="pw-stat-card"><div class="pw-stat-label">Length</div><div class="pw-stat-value" id="pw-length">—</div></div>
+                <div class="pw-stat-card"><div class="pw-stat-label">GPU Crack</div><div class="pw-stat-value" id="pw-crack-gpu">—</div></div>
+                <div class="pw-stat-card"><div class="pw-stat-label">State Actor</div><div class="pw-stat-value" id="pw-crack-state">—</div></div>
+            </div>
+            <div class="pw-lists"><div class="pw-list-section"><h3>Patterns Detected</h3><ul id="pw-patterns"></ul></div><div class="pw-list-section"><h3>Suggestions</h3><ul id="pw-suggestions"></ul></div></div>
+        </section>
+
+        <!-- ===== TOTP GENERATOR ===== -->
+        <section id="totp-generator" class="view-section">
+            <div class="section-header"><h1>TOTP Generator</h1><p class="section-desc">RFC 6238 Time-Based One-Time Passwords</p></div>
+            <div class="btn-row"><input class="input-field" type="text" id="totp-secret" placeholder="Base32 secret key (e.g., JBSWY3DPEHPK3PXP)" spellcheck="false"><button class="btn btn-primary" id="btn-totp-generate-secret"><svg class="icon"><use href="#icon-key"/></svg> Generate</button></div>
+            <div class="totp-config"><select class="select-field" id="totp-period"><option value="30">30s period</option><option value="60">60s period</option></select><select class="select-field" id="totp-digits"><option value="6">6 digits</option><option value="8">8 digits</option></select></div>
+            <div class="totp-display"><div class="totp-code" id="totp-code">------</div><div class="totp-bar"><div class="totp-bar-fill" id="totp-bar-fill"></div></div><div class="totp-countdown" id="totp-countdown-text">--</div></div>
+            <div class="btn-row"><button class="btn btn-secondary" id="btn-totp-copy"><svg class="icon"><use href="#icon-copy"/></svg> Copy Code</button><button class="btn btn-secondary" id="btn-totp-copy-uri"><svg class="icon"><use href="#icon-copy"/></svg> Copy URI</button></div>
+            <div class="result-card"><div class="result-label">OTPAuth URI</div><pre class="result-output mono-sm" id="totp-uri"></pre></div>
+        </section>
+
+        <!-- ===== HASH VERIFIER ===== -->
+        <section id="hash-verifier" class="view-section">
+            <div class="section-header"><h1>Hash Verifier</h1><p class="section-desc">Verify file or text integrity against known hashes</p></div>
+            <textarea class="input-area" id="verify-input" placeholder="Enter text or use file input below…" rows="3" spellcheck="false"></textarea>
+            <div class="btn-row"><button class="btn btn-secondary" id="btn-verify-file">📁 Select File</button><input type="file" id="verify-file-input" hidden><span id="verify-file-info" class="file-info"></span></div>
+            <select class="select-field" id="verify-algo"><option value="SHA-256">SHA-256</option><option value="SHA-512">SHA-512</option></select>
+            <input class="input-field" type="text" id="verify-expected" placeholder="Expected hash (hex)…" spellcheck="false">
+            <div class="result-card"><div class="result-label">Computed Hash</div><pre class="result-output" id="verify-computed"></pre></div>
+            <div class="verify-result" id="verify-result"></div>
+        </section>
+
+        <!-- ===== COMPARATOR ===== -->
+        <section id="comparator" class="view-section">
+            <div class="section-header"><h1>Avalanche Analyzer</h1><p class="section-desc">Visualize the avalanche effect — how 1-bit changes cascade through SHA-256</p></div>
+            <div class="compare-inputs"><input class="input-field" id="comp-a" placeholder="Input A" value="hello"><input class="input-field" id="comp-b" placeholder="Input B" value="hallo"></div>
+            <div class="compare-hashes"><div class="compare-hash-card"><div class="result-label">Hash A</div><pre class="result-output mono-sm" id="comp-hash-a"></pre></div><div class="compare-hash-card"><div class="result-label">Hash B</div><pre class="result-output mono-sm" id="comp-hash-b"></pre></div></div>
+            <div class="diff-display"><div class="diff-pct" id="diff-pct">0%</div><div class="bit-grid" id="bit-grid"></div></div>
+        </section>
+    </main>
+
+    <!-- COMMAND PALETTE -->
+    <div class="command-palette-overlay" id="command-palette">
+        <div class="command-palette">
+            <input type="text" class="palette-search" id="palette-input" placeholder="Search tools…" autocomplete="off">
+            <div class="palette-results" id="palette-results"></div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- SECURITY MODAL -->
+    <div class="modal-overlay" id="security-modal">
+        <div class="modal">
+            <h2>Security Model</h2>
+            <p>CryptoForge Pro processes all data exclusively in your browser using the <strong>Web Cryptography API</strong>. No data is ever transmitted to any server.</p>
+            <ul>
+                <li><strong>Native:</strong> SHA-256, SHA-512, HMAC, PBKDF2, AES-GCM, CSPRNG → Built-in WebCrypto</li>
+                <li><strong>CDN Opt-In:</strong> SHA-3, MD5, RIPEMD-160, Bcrypt, Argon2 → External libraries loaded on demand</li>
+            </ul>
+            <p>External libraries use <strong>Subresource Integrity (SRI)</strong> verification. Toggle via the sidebar "Libs" switch.</p>
+            <button class="btn btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Got it</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
